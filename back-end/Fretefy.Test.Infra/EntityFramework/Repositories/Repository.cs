@@ -16,30 +16,30 @@ namespace Fretefy.Test.Infra.EntityFramework.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public T Create(T entity)
+        public virtual T Create(T entity)
         {
             _context.Set<T>().Add(entity);
             _context.SaveChanges();
             return entity;
         }
 
-        public void Delete(Guid id)
+        public virtual void Delete(Guid id)
         {
             _context.Set<T>().Remove(Get(id));
             _context.SaveChanges();
         }
 
-        public T Get(Guid id)
+        public virtual T Get(Guid id)
         {
             return _context.Set<T>().Find(id);
         }
 
-        public IQueryable<T> List()
+        public virtual IQueryable<T> List()
         {
             return _context.Set<T>().AsQueryable();
         }
 
-        public T Update(T entity)
+        public virtual T Update(T entity)
         {
             _context.Set<T>().Update(entity);
             _context.SaveChanges();

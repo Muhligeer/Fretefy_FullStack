@@ -1,4 +1,5 @@
-﻿using Fretefy.Test.Domain.Interfaces.Services;
+﻿using Fretefy.Test.Domain.DTO;
+using Fretefy.Test.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -23,25 +24,25 @@ namespace Fretefy.Test.WebApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(Guid id)
+        public ActionResult<ListarRegiaoDto> Get(Guid id)
         {
             var regiao = _regiaoService.Get(id);
-            if (regiao == null)
-            {
-                return NotFound();
-            }
+            if (regiao == null) return NotFound();
             return Ok(regiao);
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Domain.Entities.Regiao regiao)
+        public ActionResult<ListarRegiaoDto> Create([FromBody] CriarRegiaoDto regiao)
         {
-            if (regiao == null)
+            try
             {
-                return BadRequest("Região não pode ser null.");
+                var result = _regiaoService.Create(regiao);
+                return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
             }
-            var createdRegiao = _regiaoService.Create(regiao);
-            return CreatedAtAction(nameof(Get), new { id = createdRegiao.Id }, createdRegiao);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]

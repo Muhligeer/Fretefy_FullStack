@@ -1,4 +1,5 @@
-﻿using Fretefy.Test.Domain.Entities;
+﻿using Fretefy.Test.Domain.DTO;
+using Fretefy.Test.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ namespace Fretefy.Test.Domain.Interfaces.Services
     {
         Regiao Get(Guid id);
         IEnumerable<Regiao> List();
-        Regiao Create(Regiao regiao);
+        ListarRegiaoDto Create(CriarRegiaoDto regiao);
         Regiao Update(Regiao regiao);
         void Delete(Guid id);
     }

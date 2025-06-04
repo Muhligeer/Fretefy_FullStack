@@ -1,8 +1,10 @@
-﻿using Fretefy.Test.Domain.Entities;
+﻿using Fretefy.Test.Domain.DTO;
+using Fretefy.Test.Domain.Entities;
 using Fretefy.Test.Domain.Interfaces.Repositories;
 using Fretefy.Test.Domain.Interfaces.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Fretefy.Test.Domain.Services
@@ -15,14 +17,45 @@ namespace Fretefy.Test.Domain.Services
             _regiaoRepository = regiaoRepository;
         }
 
-        public Regiao Create(Regiao regiao)
+        public ListarRegiaoDto Create(CriarRegiaoDto dto)
         {
-            if (regiao is null)
-            {
-                throw new ArgumentNullException(nameof(regiao), "Região não pode ser null.");
-            }
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+                throw new ArgumentException("Nome da região é obrigatório.");
 
-            return _regiaoRepository.Create(regiao);
+            if (_regiaoRepository.NomeExiste(dto.Nome))
+                throw new ArgumentException("Já existe uma região com esse nome.");
+
+            if (dto.Cidades == null || !dto.Cidades.Any())
+                throw new ArgumentException("É necessário informar ao menos uma cidade.");
+
+            if (dto.Cidades.Count != dto.Cidades.Distinct().Count())
+                throw new ArgumentException("Não é permitido repetir a mesma cidade.");
+
+            var regiao = new Regiao
+            {
+                Id = Guid.NewGuid(),
+                Nome = dto.Nome,
+                Ativo = true,
+                Cidades = dto.Cidades.Select(cid => new RegiaoCidade
+                {
+                    CidadeId = cid
+                }).ToList()
+            };
+
+            var created = _regiaoRepository.Create(regiao);
+
+            return new ListarRegiaoDto
+            {
+                Id = created.Id,
+                Nome = created.Nome,
+                Ativo = created.Ativo,
+                Cidades = created.Cidades.Select(c => new CidadeDto
+                {
+                    Id = c.Cidade.Id,
+                    Nome = c.Cidade.Nome,
+                    UF = c.Cidade.UF
+                }).ToList()
+            };
         }
 
         public void Delete(Guid id)
