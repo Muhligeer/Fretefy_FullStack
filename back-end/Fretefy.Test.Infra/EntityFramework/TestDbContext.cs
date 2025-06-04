@@ -6,8 +6,8 @@ namespace Fretefy.Test.Infra.EntityFramework
 {
     public class TestDbContext : DbContext
     {
-        public DbSet<Cidade> Cidades { get; set; }
-        public DbSet<Regiao> Regioes { get; set; }
+        public DbSet<Cidade> Cidade { get; set; }
+        public DbSet<Regiao> Regiao { get; set; }
 
 
         public TestDbContext()
