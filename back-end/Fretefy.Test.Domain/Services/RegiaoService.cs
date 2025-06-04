@@ -67,18 +67,40 @@ namespace Fretefy.Test.Domain.Services
             _regiaoRepository.Delete(id);
         }
 
-        public Regiao Get(Guid id)
+        public ListarRegiaoDto Get(Guid id)
         {
-            if (id == Guid.Empty)
+            var regiao = _regiaoRepository.Get(id);
+            if (regiao == null) return null;
+
+            return new ListarRegiaoDto
             {
-                throw new ArgumentException("ID inválido.", nameof(id));
-            }
-            return _regiaoRepository.Get(id);
+                Id = regiao.Id,
+                Nome = regiao.Nome,
+                Ativo = regiao.Ativo,
+                Cidades = regiao.Cidades.Select(c => new CidadeDto
+                {
+                    Id = c.Cidade.Id,
+                    Nome = c.Cidade.Nome,
+                    UF = c.Cidade.UF
+                }).ToList()
+            };
         }
 
-        public IEnumerable<Regiao> List()
+        public IEnumerable<ListarRegiaoDto> List()
         {
-            return _regiaoRepository.List();
+            return _regiaoRepository.List()
+                .Select(regiao => new ListarRegiaoDto
+                {
+                    Id = regiao.Id,
+                    Nome = regiao.Nome,
+                    Ativo = regiao.Ativo,
+                    Cidades = regiao.Cidades.Select(c => new CidadeDto
+                    {
+                        Id = c.Cidade.Id,
+                        Nome = c.Cidade.Nome,
+                        UF = c.Cidade.UF
+                    }).ToList()
+                });
         }
 
         public Regiao Update(Regiao regiao)

@@ -8,8 +8,8 @@ namespace Fretefy.Test.Domain.Interfaces.Services
 {
     public interface IRegiaoService
     {
-        Regiao Get(Guid id);
-        IEnumerable<Regiao> List();
+        ListarRegiaoDto Get(Guid id);
+        IEnumerable<ListarRegiaoDto> List();
         ListarRegiaoDto Create(CriarRegiaoDto regiao);
         Regiao Update(Regiao regiao);
         void Delete(Guid id);
