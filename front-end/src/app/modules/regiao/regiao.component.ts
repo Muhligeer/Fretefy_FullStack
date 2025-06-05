@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Regiao } from 'src/app/interfaces/regiao';
+import { RegioesService } from 'src/app/services/regioes.service';
 
 @Component({
   selector: 'app-regiao',
@@ -7,9 +9,22 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RegiaoComponent implements OnInit {
 
-  constructor() { }
+  regioes: Regiao[] = [];
+
+  constructor(
+    private regioesService: RegioesService
+  ) { }
 
   ngOnInit() {
+    this.regioesService.listarRegioes().subscribe({
+      next: (regioes) => {
+        console.log('Regiões recebidas:', regioes);
+        this.regioes = regioes;
+      },
+      error: (error) => {
+        console.error('Erro ao listar regiões:', error);
+      }
+    });
   }
 
 }
