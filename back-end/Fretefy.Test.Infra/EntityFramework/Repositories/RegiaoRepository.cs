@@ -25,6 +25,16 @@ namespace Fretefy.Test.Infra.EntityFramework.Repositories
                 .FirstOrDefault(r => r.Id == entity.Id);
         }
 
+        public override Regiao Update(Regiao entity)
+        {
+            base.Update(entity);
+
+            return _context.Regiao
+                .Include(r => r.Cidades)
+                    .ThenInclude(rc => rc.Cidade)
+                .FirstOrDefault(r => r.Id == entity.Id);
+        }
+
         public override Regiao Get(Guid id)
         {
             return _context.Regiao
@@ -43,6 +53,12 @@ namespace Fretefy.Test.Infra.EntityFramework.Repositories
         public bool NomeExiste(string nome)
         {
             return _context.Regiao.Any(r => r.Nome.ToLower() == nome.ToLower());
+        }
+
+        public bool NomeExiste(string nome, Guid ignoreId)
+        {
+            return _context.Regiao
+                .Any(r => r.Nome.ToLower() == nome.ToLower() && r.Id != ignoreId);
         }
     }
 }

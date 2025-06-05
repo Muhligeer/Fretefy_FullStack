@@ -103,17 +103,51 @@ namespace Fretefy.Test.Domain.Services
                 });
         }
 
-        public Regiao Update(Regiao regiao)
+        public ListarRegiaoDto Update(AtualizarRegiaoDto dto)
         {
-            if (regiao is null)
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto));
+
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+                throw new ArgumentException("Nome da região é obrigatório.");
+
+            if (dto.Cidades == null || !dto.Cidades.Any())
+                throw new ArgumentException("Informe ao menos uma cidade.");
+
+            if (dto.Cidades.Count != dto.Cidades.Distinct().Count())
+                throw new ArgumentException("Cidades duplicadas não são permitidas.");
+
+            var regiao = _regiaoRepository.Get(dto.Id);
+            if (regiao == null)
+                throw new KeyNotFoundException("Região não encontrada.");
+
+            var nomeExistente = _regiaoRepository.NomeExiste(dto.Nome, dto.Id);
+            if (nomeExistente)
+                throw new ArgumentException("Já existe uma região com esse nome.");
+
+            regiao.Nome = dto.Nome;
+            regiao.Ativo = dto.Ativo;
+
+            regiao.Cidades = dto.Cidades.Select(cid => new RegiaoCidade
             {
-                throw new ArgumentNullException(nameof(regiao), "Região não pode ser null.");
-            }
-            if (regiao.Id == Guid.Empty)
+                RegiaoId = regiao.Id,
+                CidadeId = cid
+            }).ToList();
+
+            _regiaoRepository.Update(regiao);
+
+            return new ListarRegiaoDto
             {
-                throw new ArgumentException("ID inválido.", nameof(regiao.Id));
-            }
-            return _regiaoRepository.Update(regiao);
+                Id = regiao.Id,
+                Nome = regiao.Nome,
+                Ativo = regiao.Ativo,
+                Cidades = regiao.Cidades.Select(rc => new CidadeDto
+                {
+                    Id = rc.Cidade.Id,
+                    Nome = rc.Cidade.Nome,
+                    UF = rc.Cidade.UF
+                }).ToList()
+            };
         }
     }
 }

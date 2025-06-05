@@ -11,7 +11,7 @@ namespace Fretefy.Test.Domain.Interfaces.Services
         ListarRegiaoDto Get(Guid id);
         IEnumerable<ListarRegiaoDto> List();
         ListarRegiaoDto Create(CriarRegiaoDto regiao);
-        Regiao Update(Regiao regiao);
+        ListarRegiaoDto Update(AtualizarRegiaoDto regiao);
         void Delete(Guid id);
     }
 }

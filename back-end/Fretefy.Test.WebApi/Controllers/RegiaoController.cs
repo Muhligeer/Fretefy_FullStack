@@ -2,6 +2,7 @@
 using Fretefy.Test.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 
 namespace Fretefy.Test.WebApi.Controllers
 {
@@ -46,14 +47,24 @@ namespace Fretefy.Test.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(Guid id, [FromBody] Domain.Entities.Regiao regiao)
+        public ActionResult<ListarRegiaoDto> Put(Guid id, [FromBody] AtualizarRegiaoDto dto)
         {
-            if (regiao == null || regiao.Id != id)
+            if (id != dto.Id)
+                return BadRequest("ID da URL difere do corpo.");
+
+            try
             {
-                return BadRequest("Dados inválidos para atualização.");
+                var result = _regiaoService.Update(dto);
+                return Ok(result);
             }
-            var updatedRegiao = _regiaoService.Update(regiao);
-            return Ok(updatedRegiao);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         [HttpDelete("{id}")]
