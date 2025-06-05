@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Fretefy.Test.Infra.EntityFramework.Repositories
 {
@@ -10,39 +11,47 @@ namespace Fretefy.Test.Infra.EntityFramework.Repositories
         where T : class
     {
         protected readonly TestDbContext _context;
+        protected readonly DbSet<T> _dbSet;
 
         public Repository(TestDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _dbSet = _context.Set<T>();
         }
 
-        public virtual T Create(T entity)
+        public virtual async Task<T> CreateAsync(T entity)
         {
-            _context.Set<T>().Add(entity);
-            _context.SaveChanges();
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
             return entity;
         }
 
-        public virtual void Delete(Guid id)
+        public virtual async Task DeleteAsync(Guid id)
         {
-            _context.Set<T>().Remove(Get(id));
-            _context.SaveChanges();
+            var entity = await GetAsync(id);
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
         }
 
-        public virtual T Get(Guid id)
+        public virtual async Task<T> GetAsync(Guid id)
         {
-            return _context.Set<T>().Find(id);
+            return await _dbSet.FindAsync(id);
         }
 
-        public virtual IQueryable<T> List()
+        public virtual async Task<IEnumerable<T>> ListAsync()
         {
-            return _context.Set<T>().AsQueryable();
+            return await _dbSet.ToListAsync();
         }
 
-        public virtual T Update(T entity)
+        public virtual IQueryable<T> Query()
         {
-            _context.Set<T>().Update(entity);
-            _context.SaveChanges();
+            return _dbSet.AsQueryable();
+        }
+
+        public virtual async Task<T> UpdateAsync(T entity)
+        {
+            _dbSet.Update(entity);
+            await _context.SaveChangesAsync();
             return entity;
         }
     }

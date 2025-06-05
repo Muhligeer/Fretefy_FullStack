@@ -3,6 +3,7 @@ using Fretefy.Test.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Fretefy.Test.WebApi.Controllers
 {
@@ -18,26 +19,26 @@ namespace Fretefy.Test.WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult List()
+        public async Task<IActionResult> List()
         {
-            var regioes = _regiaoService.List();
+            var regioes = await _regiaoService.ListAsync();
             return Ok(regioes);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ListarRegiaoDto> Get(Guid id)
+        public async Task<ActionResult<ListarRegiaoDto>> Get(Guid id)
         {
-            var regiao = _regiaoService.Get(id);
+            var regiao = await _regiaoService.GetAsync(id);
             if (regiao == null) return NotFound();
             return Ok(regiao);
         }
 
         [HttpPost]
-        public ActionResult<ListarRegiaoDto> Create([FromBody] CriarRegiaoDto regiao)
+        public async Task<ActionResult<ListarRegiaoDto>> Create([FromBody] CriarRegiaoDto regiao)
         {
             try
             {
-                var result = _regiaoService.Create(regiao);
+                var result = await _regiaoService.CreateAsync(regiao);
                 return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
             }
             catch (ArgumentException ex)
@@ -47,14 +48,14 @@ namespace Fretefy.Test.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult<ListarRegiaoDto> Put(Guid id, [FromBody] AtualizarRegiaoDto dto)
+        public async Task<ActionResult<ListarRegiaoDto>> Put(Guid id, [FromBody] AtualizarRegiaoDto dto)
         {
             if (id != dto.Id)
                 return BadRequest("ID da URL difere do corpo.");
 
             try
             {
-                var result = _regiaoService.Update(dto);
+                var result = await _regiaoService.UpdateAsync(dto);
                 return Ok(result);
             }
             catch (ArgumentException ex)
@@ -68,14 +69,35 @@ namespace Fretefy.Test.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             if (id == Guid.Empty)
             {
                 return BadRequest("ID inválido.");
             }
-            _regiaoService.Delete(id);
+            await _regiaoService.DeleteAsync(id);
             return NoContent();
+        }
+
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> PatchStatus(Guid id, [FromBody] AtualizarRegiaoStatusDto dto)
+        {
+            if (id != dto.Id)
+                return BadRequest("ID da URL difere do corpo.");
+
+            try
+            {
+                await _regiaoService.AtualizarStatusAsync(dto);
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
     }
 }

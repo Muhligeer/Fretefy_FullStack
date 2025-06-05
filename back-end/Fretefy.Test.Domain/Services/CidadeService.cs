@@ -19,12 +19,12 @@ namespace Fretefy.Test.Domain.Services
 
         public Cidade Get(Guid id)
         {
-            return _cidadeRepository.List().FirstOrDefault(f => f.Id == id);
+            return _cidadeRepository.Query().FirstOrDefault(f => f.Id == id);
         }
 
         public IEnumerable<Cidade> List()
         {
-            return _cidadeRepository.List();
+            return _cidadeRepository.Query();
         }
 
         public IEnumerable<Cidade> ListByUf(string uf)

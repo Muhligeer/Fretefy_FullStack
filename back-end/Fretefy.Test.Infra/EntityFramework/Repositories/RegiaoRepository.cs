@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Fretefy.Test.Infra.EntityFramework.Repositories
 {
@@ -15,50 +16,51 @@ namespace Fretefy.Test.Infra.EntityFramework.Repositories
         {
         }
 
-        public override Regiao Create(Regiao entity)
+        public override async Task<Regiao> CreateAsync(Regiao entity)
         {
-            base.Create(entity);
+            await base.CreateAsync(entity);
 
-            return _context.Regiao
+            return await _context.Regiao
                 .Include(r => r.Cidades)
                     .ThenInclude(rc => rc.Cidade)
-                .FirstOrDefault(r => r.Id == entity.Id);
+                .FirstOrDefaultAsync(r => r.Id == entity.Id);
         }
 
-        public override Regiao Update(Regiao entity)
+        public override async Task<Regiao> UpdateAsync(Regiao entity)
         {
-            base.Update(entity);
+            await base.UpdateAsync(entity);
 
-            return _context.Regiao
+            return await _context.Regiao
                 .Include(r => r.Cidades)
                     .ThenInclude(rc => rc.Cidade)
-                .FirstOrDefault(r => r.Id == entity.Id);
+                .FirstOrDefaultAsync(r => r.Id == entity.Id);
         }
 
-        public override Regiao Get(Guid id)
+        public override async Task<Regiao> GetAsync(Guid id)
         {
-            return _context.Regiao
+            return await _context.Regiao
                 .Include(r => r.Cidades)
                 .ThenInclude(rc => rc.Cidade)
-                .FirstOrDefault(r => r.Id == id);
+                .FirstOrDefaultAsync(r => r.Id == id);
         }
 
-        public override IQueryable<Regiao> List()
+        public override async Task<IEnumerable<Regiao>> ListAsync()
         {
-            return _context.Regiao
+            return await _context.Regiao
                 .Include(r => r.Cidades)
-                .ThenInclude(rc => rc.Cidade);
+                .ThenInclude(rc => rc.Cidade)
+                .ToListAsync();
         }
 
-        public bool NomeExiste(string nome)
+        public async Task<bool> NomeExiste(string nome)
         {
-            return _context.Regiao.Any(r => r.Nome.ToLower() == nome.ToLower());
+            return await _context.Regiao.AnyAsync(r => r.Nome.ToLower() == nome.ToLower());
         }
 
-        public bool NomeExiste(string nome, Guid ignoreId)
+        public async Task<bool> NomeExiste(string nome, Guid ignoreId)
         {
-            return _context.Regiao
-                .Any(r => r.Nome.ToLower() == nome.ToLower() && r.Id != ignoreId);
+            return await _context.Regiao
+                .AnyAsync(r => r.Nome.ToLower() == nome.ToLower() && r.Id != ignoreId);
         }
     }
 }

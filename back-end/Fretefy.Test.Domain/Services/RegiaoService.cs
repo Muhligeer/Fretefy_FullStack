@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Fretefy.Test.Domain.Services
 {
@@ -17,12 +18,12 @@ namespace Fretefy.Test.Domain.Services
             _regiaoRepository = regiaoRepository;
         }
 
-        public ListarRegiaoDto Create(CriarRegiaoDto dto)
+        public async Task<ListarRegiaoDto> CreateAsync(CriarRegiaoDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Nome))
                 throw new ArgumentException("Nome da região é obrigatório.");
 
-            if (_regiaoRepository.NomeExiste(dto.Nome))
+            if (await _regiaoRepository.NomeExiste(dto.Nome))
                 throw new ArgumentException("Já existe uma região com esse nome.");
 
             if (dto.Cidades == null || !dto.Cidades.Any())
@@ -42,7 +43,7 @@ namespace Fretefy.Test.Domain.Services
                 }).ToList()
             };
 
-            var created = _regiaoRepository.Create(regiao);
+            var created = await _regiaoRepository.CreateAsync(regiao);
 
             return new ListarRegiaoDto
             {
@@ -58,18 +59,18 @@ namespace Fretefy.Test.Domain.Services
             };
         }
 
-        public void Delete(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
             if (id == Guid.Empty)
             {
                 throw new ArgumentException("ID inválido.", nameof(id));
             }
-            _regiaoRepository.Delete(id);
+            await _regiaoRepository.DeleteAsync(id);
         }
 
-        public ListarRegiaoDto Get(Guid id)
+        public async Task<ListarRegiaoDto> GetAsync(Guid id)
         {
-            var regiao = _regiaoRepository.Get(id);
+            var regiao = await _regiaoRepository.GetAsync(id);
             if (regiao == null) return null;
 
             return new ListarRegiaoDto
@@ -86,24 +87,24 @@ namespace Fretefy.Test.Domain.Services
             };
         }
 
-        public IEnumerable<ListarRegiaoDto> List()
+        public async Task<IEnumerable<ListarRegiaoDto>> ListAsync()
         {
-            return _regiaoRepository.List()
-                .Select(regiao => new ListarRegiaoDto
+            var regioes = await _regiaoRepository.ListAsync();
+            return regioes.Select(regiao => new ListarRegiaoDto
+            {
+                Id = regiao.Id,
+                Nome = regiao.Nome,
+                Ativo = regiao.Ativo,
+                Cidades = regiao.Cidades.Select(c => new CidadeDto
                 {
-                    Id = regiao.Id,
-                    Nome = regiao.Nome,
-                    Ativo = regiao.Ativo,
-                    Cidades = regiao.Cidades.Select(c => new CidadeDto
-                    {
-                        Id = c.Cidade.Id,
-                        Nome = c.Cidade.Nome,
-                        UF = c.Cidade.UF
-                    }).ToList()
-                });
+                    Id = c.Cidade.Id,
+                    Nome = c.Cidade.Nome,
+                    UF = c.Cidade.UF
+                }).ToList()
+            });
         }
 
-        public ListarRegiaoDto Update(AtualizarRegiaoDto dto)
+        public async Task<ListarRegiaoDto> UpdateAsync(AtualizarRegiaoDto dto)
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
@@ -117,11 +118,11 @@ namespace Fretefy.Test.Domain.Services
             if (dto.Cidades.Count != dto.Cidades.Distinct().Count())
                 throw new ArgumentException("Cidades duplicadas não são permitidas.");
 
-            var regiao = _regiaoRepository.Get(dto.Id);
+            var regiao = await _regiaoRepository.GetAsync(dto.Id);
             if (regiao == null)
                 throw new KeyNotFoundException("Região não encontrada.");
 
-            var nomeExistente = _regiaoRepository.NomeExiste(dto.Nome, dto.Id);
+            var nomeExistente = await _regiaoRepository.NomeExiste(dto.Nome, dto.Id);
             if (nomeExistente)
                 throw new ArgumentException("Já existe uma região com esse nome.");
 
@@ -134,7 +135,7 @@ namespace Fretefy.Test.Domain.Services
                 CidadeId = cid
             }).ToList();
 
-            _regiaoRepository.Update(regiao);
+            await _regiaoRepository.UpdateAsync(regiao);
 
             return new ListarRegiaoDto
             {
@@ -148,6 +149,19 @@ namespace Fretefy.Test.Domain.Services
                     UF = rc.Cidade.UF
                 }).ToList()
             };
+        }
+
+        public async Task AtualizarStatusAsync(AtualizarRegiaoStatusDto dto)
+        {
+            if (dto.Id == Guid.Empty)
+                throw new ArgumentException("ID inválido.");
+
+            var regiao = await _regiaoRepository.GetAsync(dto.Id);
+            if (regiao == null)
+                throw new KeyNotFoundException("Região não encontrada.");
+
+            regiao.Ativo = dto.Ativo;
+            await _regiaoRepository.UpdateAsync(regiao);
         }
     }
 }
