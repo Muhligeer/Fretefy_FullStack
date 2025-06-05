@@ -65,6 +65,14 @@ namespace Fretefy.Test.WebApi
                 options.RoutePrefix = string.Empty;
             });
 
+            app.UseCors(builder =>
+            {
+                builder.WithOrigins("http://localhost:4200")
+                       .AllowAnyHeader()
+                       .AllowAnyMethod()
+                       .AllowCredentials();
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
