@@ -1,3 +1,37 @@
-<p>
-  regiao works!
-</p>
+<h2 class="regiao-title">Regiões</h2>
+
+<div class="regiao-header">
+  <a routerLink="/regiao/new" class="regiao-btn regiao-btn-primary">+ Nova Região</a>
+</div>
+
+<table class="regiao-table">
+  <thead>
+    <tr>
+      <th class="regiao-th">Nome</th>
+      <th class="regiao-th">Ativo</th>
+      <th class="regiao-th">Cidades</th>
+      <th class="regiao-th" colspan="2">Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let regiao of regioes" class="regiao-row">
+      <td class="regiao-td">{{ regiao.nome }}</td>
+      <td class="regiao-td">{{ regiao.ativo ? 'Sim' : 'Não' }}</td>
+      <td class="regiao-td">
+        <ul class="regiao-cidade-list">
+          <li *ngFor="let cidade of regiao.cidades" class="regiao-cidade-item">
+            {{ cidade.nome }} - {{ cidade.uf }}
+          </li>
+        </ul>
+      </td>
+      <td class="regiao-td">
+        <button class="regiao-btn regiao-btn-secondary" (click)="alternarStatus(regiao)">
+          {{ regiao.ativo ? 'Desativar' : 'Ativar' }}
+        </button>
+      </td>
+      <td class="regiao-td">
+        <a [routerLink]="['/regiao/edit', regiao.id]" class="regiao-btn regiao-btn-edit">Editar</a>
+      </td>
+    </tr>
+  </tbody>
+</table>

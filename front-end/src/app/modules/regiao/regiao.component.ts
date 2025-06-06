@@ -16,6 +16,10 @@ export class RegiaoComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.carregarRegioes();
+  }
+
+  private carregarRegioes() {
     this.regioesService.listarRegioes().subscribe({
       next: (regioes) => {
         console.log('Regiões recebidas:', regioes);
@@ -27,4 +31,13 @@ export class RegiaoComponent implements OnInit {
     });
   }
 
+  alternarStatus(regiao: Regiao) {
+    const novoStatus = { id: regiao.id, ativo: !regiao.ativo };
+    this.regioesService.alterarStatus(regiao.id, novoStatus).subscribe({
+      next: () => {
+        regiao.ativo = novoStatus.ativo;
+      },
+      error: () => alert('Erro ao alterar status')
+    });
+  }
 }

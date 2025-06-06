@@ -13,9 +13,24 @@ export class RegioesService {
     return this.httpClient.get<Regiao[]>(environment.apiUrl + 'Regiao');
   }
 
-  alterarStatus(id: number, ativo: boolean) {
-    return this.httpClient.patch(`${environment.apiUrl}Regiao/${id}/status=${ativo}`, {});
+  alterarStatus(id: string, ativo: { id: string, ativo: boolean }) {
+    return this.httpClient.patch(`${environment.apiUrl}Regiao/${id}/status`, ativo);
   }
 
+  criarRegiao(regiao: Regiao) {
+    return this.httpClient.post<Regiao>(environment.apiUrl + 'Regiao', regiao);
+  }
+
+  atualizarRegiao(regiao: Regiao) {
+    return this.httpClient.put<Regiao>(`${environment.apiUrl}Regiao/${regiao.id}`, regiao);
+  }
+
+  excluirRegiao(id: string) {
+    return this.httpClient.delete(`${environment.apiUrl}Regiao/${id}`);
+  }
+
+  buscarRegiaoPorId(id: string) {
+    return this.httpClient.get<Regiao>(`${environment.apiUrl}Regiao/${id}`);
+  }
   
 }

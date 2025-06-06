@@ -1,8 +1,8 @@
 import { Cidade } from "./cidade";
 
 export interface Regiao {
-  id: number;
+  id: string;
   nome: string;
-  ativo: string;
+  ativo: boolean;
   cidades: Cidade[];
 }

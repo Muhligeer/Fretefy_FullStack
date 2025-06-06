@@ -1,0 +1,14 @@
+<h2>{{ editando ? 'Editar' : 'Nova' }} Região</h2>
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <label>Nome:</label><br />
+  <input type="text" formControlName="nome" /><br /><br />
+
+  <label>Cidades:</label><br />
+  <select formControlName="cidadesIds" multiple size="10">
+    <option *ngFor="let cidade of cidades" [value]="cidade.id">
+      {{ cidade.nome }} - {{ cidade.uf }}
+    </option>
+  </select><br /><br />
+
+  <button type="submit">Salvar</button>
+</form>
