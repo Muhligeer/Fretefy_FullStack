@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fretefy.Test.Domain.Entities.Interfaces;
+using System;
 
 namespace Fretefy.Test.Domain.Entities
 {

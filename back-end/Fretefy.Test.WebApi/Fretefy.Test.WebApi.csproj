@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Fretefy.Test.Domain\Fretefy.Test.Domain.csproj" />
     <ProjectReference Include="..\Fretefy.Test.Infra\Fretefy.Test.Infra.csproj" />
+    <ProjectReference Include="..\Fretefy.Test.Application\Fretefy.Test.Application.csproj" />
   </ItemGroup>
 
 </Project>

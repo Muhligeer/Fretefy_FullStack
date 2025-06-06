@@ -6,7 +6,8 @@ import { AppComponent } from './app.component';
 import { HomeModule } from './modules/home/home.module';
 import { ToolbarModule } from './components/toolbar/toolbar.module';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { RegioesService } from './services/regioes.service';
+import { RegiaoModule } from './modules/regiao/regiao.module';
 
 @NgModule({
   declarations: [
@@ -15,13 +16,12 @@ import { HttpClientModule } from '@angular/common/http';
   imports: [
     BrowserModule,
     RouterModule,
-    HttpClientModule,
     HomeModule,
     ToolbarModule,
-
+    RegiaoModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [RegioesService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

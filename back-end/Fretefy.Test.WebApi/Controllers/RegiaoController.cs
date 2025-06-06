@@ -1,4 +1,6 @@
-﻿using Fretefy.Test.Domain.DTO;
+﻿using Fretefy.Test.Application.Interfaces;
+using Fretefy.Test.Application.Services;
+using Fretefy.Test.Domain.DTO;
 using Fretefy.Test.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,24 +13,24 @@ namespace Fretefy.Test.WebApi.Controllers
     [ApiController]
     public class RegiaoController : ControllerBase
     {
-        private readonly IRegiaoService _regiaoService;
+        private readonly IRegiaoAppService _regiaoAppService;
 
-        public RegiaoController(IRegiaoService regiaoService)
+        public RegiaoController(IRegiaoAppService regiaoAppService)
         {
-            _regiaoService = regiaoService;
+            _regiaoAppService = regiaoAppService;
         }
 
         [HttpGet]
         public async Task<IActionResult> List()
         {
-            var regioes = await _regiaoService.ListAsync();
+            var regioes = await _regiaoAppService.ListAsync();
             return Ok(regioes);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ListarRegiaoDto>> Get(Guid id)
         {
-            var regiao = await _regiaoService.GetAsync(id);
+            var regiao = await _regiaoAppService.GetAsync(id);
             if (regiao == null) return NotFound();
             return Ok(regiao);
         }
@@ -38,7 +40,7 @@ namespace Fretefy.Test.WebApi.Controllers
         {
             try
             {
-                var result = await _regiaoService.CreateAsync(regiao);
+                var result = await _regiaoAppService.CreateAsync(regiao);
                 return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
             }
             catch (ArgumentException ex)
@@ -55,7 +57,7 @@ namespace Fretefy.Test.WebApi.Controllers
 
             try
             {
-                var result = await _regiaoService.UpdateAsync(dto);
+                var result = await _regiaoAppService.UpdateAsync(dto);
                 return Ok(result);
             }
             catch (ArgumentException ex)
@@ -75,7 +77,7 @@ namespace Fretefy.Test.WebApi.Controllers
             {
                 return BadRequest("ID inválido.");
             }
-            await _regiaoService.DeleteAsync(id);
+            await _regiaoAppService.DeleteAsync(id);
             return NoContent();
         }
 
@@ -87,7 +89,7 @@ namespace Fretefy.Test.WebApi.Controllers
 
             try
             {
-                await _regiaoService.AtualizarStatusAsync(dto);
+                await _regiaoAppService.AtualizarStatusAsync(dto);
                 return NoContent();
             }
             catch (ArgumentException ex)

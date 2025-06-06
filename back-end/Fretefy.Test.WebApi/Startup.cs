@@ -1,3 +1,5 @@
+using Fretefy.Test.Application.Interfaces;
+using Fretefy.Test.Application.Services;
 using Fretefy.Test.Domain.Interfaces;
 using Fretefy.Test.Domain.Interfaces.Repositories;
 using Fretefy.Test.Domain.Interfaces.Services;
@@ -25,6 +27,7 @@ namespace Fretefy.Test.WebApi
                 options.UseSqlite("Data Source=Data\\Test.db");
             });
 
+            ConfigureApplicationService(services);
             ConfigureInfraService(services);
             ConfigureDomainService(services);
 
@@ -32,8 +35,14 @@ namespace Fretefy.Test.WebApi
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Minha API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Fretefy Test", Version = "v1" });
             });
+        }
+
+        private void ConfigureApplicationService(IServiceCollection services)
+        {
+            //services.AddScoped<ICidadeAppService, CidadeAppService>();
+            services.AddScoped<IRegiaoAppService, RegiaoAppService>();
         }
 
         private void ConfigureDomainService(IServiceCollection services)
