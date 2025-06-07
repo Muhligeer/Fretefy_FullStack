@@ -10,7 +10,7 @@ namespace Fretefy.Test.Domain.Interfaces.Services
     public interface IRegiaoService
     {
         Task<ListarRegiaoDto> GetAsync(Guid id);
-        Task<IEnumerable<ListarRegiaoDto>> ListAsync();
+        Task<IEnumerable<Regiao>> ListAsync();
         Task<ListarRegiaoDto> CreateAsync(CriarRegiaoDto regiao);
         Task<ListarRegiaoDto> UpdateAsync(AtualizarRegiaoDto regiao);
         Task DeleteAsync(Guid id);

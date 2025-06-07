@@ -87,21 +87,10 @@ namespace Fretefy.Test.Domain.Services
             };
         }
 
-        public async Task<IEnumerable<ListarRegiaoDto>> ListAsync()
+        public async Task<IEnumerable<Regiao>> ListAsync()
         {
             var regioes = await _regiaoRepository.ListAsync();
-            return regioes.Select(regiao => new ListarRegiaoDto
-            {
-                Id = regiao.Id,
-                Nome = regiao.Nome,
-                Ativo = regiao.Ativo,
-                Cidades = regiao.Cidades.Select(c => new CidadeDto
-                {
-                    Id = c.Cidade.Id,
-                    Nome = c.Cidade.Nome,
-                    UF = c.Cidade.UF
-                }).ToList()
-            });
+            return regioes;
         }
 
         public async Task<ListarRegiaoDto> UpdateAsync(AtualizarRegiaoDto dto)

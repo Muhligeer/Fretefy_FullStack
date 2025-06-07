@@ -1,8 +1,10 @@
 ﻿using Fretefy.Test.Domain.DTO;
 using Fretefy.Test.Domain.Interfaces.Services;
+using Fretefy.Test.Domain.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Fretefy.Test.WebApi.Controllers
@@ -22,7 +24,21 @@ namespace Fretefy.Test.WebApi.Controllers
         public async Task<IActionResult> List()
         {
             var regioes = await _regiaoService.ListAsync();
-            return Ok(regioes);
+
+            var result = regioes.Select(regiao => new ListarRegiaoDto
+            {
+                Id = regiao.Id,
+                Nome = regiao.Nome,
+                Ativo = regiao.Ativo,
+                Cidades = regiao.Cidades.Select(c => new CidadeDto
+                {
+                    Id = c.Cidade.Id,
+                    Nome = c.Cidade.Nome,
+                    UF = c.Cidade.UF
+                }).ToList()
+            });
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
@@ -97,6 +113,28 @@ namespace Fretefy.Test.WebApi.Controllers
             catch (KeyNotFoundException)
             {
                 return NotFound();
+            }
+        }
+
+        [HttpGet("exportar")]
+        public async Task<IActionResult> ExportarExcel()
+        {
+            try
+            {
+                var regioes = await _regiaoService.ListAsync();
+
+                if (regioes == null || !regioes.Any())
+                {
+                    return NotFound("Nenhuma região encontrada para exportação.");
+                }
+
+                var file = ExcelExporter.ExportarRegioes(regioes);
+
+                return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Regioes.xlsx");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao exportar: {ex.Message}");
             }
         }
     }
