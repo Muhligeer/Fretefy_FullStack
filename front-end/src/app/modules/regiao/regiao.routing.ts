@@ -8,11 +8,11 @@ const routes: Routes = [
     component: RegiaoComponent
   },
   { 
-    path: 'new', 
+    path: 'nova', 
     component: RegiaoFormComponent 
   },
   { 
-    path: 'edit/:id', 
+    path: 'editar/:id', 
     component: RegiaoFormComponent 
   }
 ];

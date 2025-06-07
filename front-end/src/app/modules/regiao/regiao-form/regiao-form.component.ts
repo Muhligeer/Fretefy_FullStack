@@ -1,59 +1,132 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { RegioesService } from 'src/app/services/regioes.service';
-import { Cidade } from 'src/app/interfaces/cidade';
+import { AtualizarRegiaoRequest } from 'src/app/interfaces/AtualizarRegiaoRequest';
+import { CidadeService } from 'src/app/services/cidade.service';
+import { RegiaoService } from 'src/app/services/regiao.service';
 
 @Component({
   selector: 'app-regiao-form',
-  templateUrl: './regiao-form.component.html'
+  templateUrl: './regiao-form.component.html',
+  styleUrls: ['./regiao-form.component.scss']
 })
 export class RegiaoFormComponent implements OnInit {
-  form: FormGroup;
-  cidades: Cidade[] = [];
-  editando = false;
-  id!: string;
+  id: string | null = null;
+  regiaoForm: FormGroup;
+  cidadesDisponiveis;
 
   constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private regioesService: RegioesService,
-    private http: HttpClient
-  ) {
-    this.form = this.fb.group({
-      nome: [''],
-      cidadesIds: [[]]
-    });
-  }
+    private fb: FormBuilder, 
+    private regiaoService: RegiaoService, 
+    private cidadeService: CidadeService,
+    private route: ActivatedRoute, 
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.http.get<Cidade[]>('https://localhost:5001/api/cidade')
-      .subscribe(data => this.cidades = data);
+    this.regiaoForm = this.fb.group({
+      nome: ['', Validators.required],
+      ativo: [false],
+      cidades: this.fb.array([])
+    });
 
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      this.editando = true;
-      this.id = idParam;
-      this.regioesService.buscarRegiaoPorId(this.id).subscribe(regiao => {
-        this.form.patchValue({
-          nome: regiao.nome,
-          cidadesIds: regiao.cidades.map(c => c.id)
+
+    this.route.paramMap.subscribe(params => {
+      this.id = params.get('id');
+    });
+
+    this.cidadeService.listarCidades().subscribe(data => {
+      this.cidadesDisponiveis = data;
+
+      if (this.id) {
+        this.regiaoService.buscarRegiaoPorId(this.id).subscribe((data: any) => {
+          const regiao = data;
+
+          this.regiaoForm.patchValue({
+            nome: regiao.nome,
+            ativo: regiao.ativo,
+          })
+          for (let i = 0; i < regiao.cidades.length; i++) {
+            this.adicionarCidade(regiao.cidades[i])
+          }
         });
-      });
-    }
+      } else {
+        this.adicionarCidade()
+      }
+    })
   }
 
-  salvar() {
-    const dto = this.form.value;
-    const request = this.editando
-      ? this.regioesService.atualizarRegiao(dto)
-      : this.regioesService.criarRegiao(dto);
+  getCidades(): FormArray {
+    return this.regiaoForm.get('cidades') as FormArray;
+  }
 
-    request.subscribe({
-      next: () => this.router.navigate(['/regioes']),
-      error: () => alert('Erro ao salvar região')
+  adicionarCidade(cidade = null): void {
+    const cidadeFormGroup = this.fb.group({
+      id: [cidade?.['id'] || '', Validators.required],
     });
+    this.getCidades().push(cidadeFormGroup);
+  }
+
+  removerCidade(i) {
+    this.getCidades().removeAt(i)
+  }
+
+  onSubmit() {
+    if (this.regiaoForm.invalid) {
+      alert('Preencha todos os campos corretamente')
+      return;
+    }
+
+    if (this.regiaoForm.value.cidades.length < 1) {
+      alert('Selecione pelo menos uma cidade')
+      return;
+    }
+    const cidadesSelecionadas = this.regiaoForm.value.cidades;
+
+    let idsCidades = cidadesSelecionadas.map(c => c.id);
+    const temDuplicado = new Set(idsCidades).size !== idsCidades.length;
+
+    if (temDuplicado) {
+      alert('Não é possível cadastrar cidades duplicadas');
+      return;
+    }
+
+    const cidadesIds: string[] = idsCidades
+      .map(id => this.cidadesDisponiveis.find(cidade => cidade.id === id)?.id)
+      .filter(id => !!id);
+
+    const value = this.regiaoForm.value
+
+    if (this.id) {
+      let modelAtualizar: AtualizarRegiaoRequest = {
+        id: this.id,
+        nome: value.nome,
+        ativo: value.ativo,
+        cidades: cidadesIds
+      }
+      this.regiaoService.atualizarRegiao(modelAtualizar).subscribe(data => {
+        alert('Atualizado com sucesso!')
+        this.regiaoForm.reset();
+        this.getCidades().clear();
+        this.adicionarCidade();
+        this.router.navigate(['/regiao'])
+      }, error => {
+        alert('Ocorreu um erro')
+      })
+    } else {
+      let model = {
+        nome: value.nome,
+        cidades: cidadesIds
+      }
+      this.regiaoService.criarRegiao(model).subscribe(data => {
+        alert('Salvo com sucesso!')
+        this.regiaoForm.reset();
+        this.getCidades().clear();
+        this.adicionarCidade();
+        this.router.navigate(['/regiao'])
+      }, error => {
+        alert('Ocorreu um erro')
+      })
+    }
   }
 }

@@ -8,7 +8,7 @@ import { ToolbarModule } from './components/toolbar/toolbar.module';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { RegiaoModule } from './modules/regiao/regiao.module';
-import { RegioesService } from './services/regioes.service';
+import { RegiaoService } from './services/regiao.service';
 
 @NgModule({
   declarations: [
@@ -22,7 +22,7 @@ import { RegioesService } from './services/regioes.service';
     RegiaoModule,
     AppRoutingModule
   ],
-  providers: [RegioesService],
+  providers: [RegiaoService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

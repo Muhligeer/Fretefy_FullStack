@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { Regiao } from 'src/app/interfaces/regiao';
-import { RegioesService } from 'src/app/services/regioes.service';
+import { RegiaoService } from 'src/app/services/regiao.service';
+import Swal from 'sweetalert2'
 
 @Component({
   selector: 'app-regiao',
@@ -9,35 +12,83 @@ import { RegioesService } from 'src/app/services/regioes.service';
 })
 export class RegiaoComponent implements OnInit {
 
-  regioes: Regiao[] = [];
+  regioes: Observable<Regiao[]>;
+  loading = true;
 
   constructor(
-    private regioesService: RegioesService
-  ) { }
+    private regiaoService: RegiaoService,
+    private router: Router
+  ) {
+    this.regioes = new Observable<Regiao[]>();
+  }
 
   ngOnInit() {
     this.carregarRegioes();
   }
 
   private carregarRegioes() {
-    this.regioesService.listarRegioes().subscribe({
-      next: (regioes) => {
-        console.log('Regiões recebidas:', regioes);
-        this.regioes = regioes;
+    this.regioes = this.regiaoService.listarRegioes()
+    this.regioes.subscribe({
+      next: () => {
+        this.loading = false;
       },
       error: (error) => {
-        console.error('Erro ao listar regiões:', error);
+        this.loading = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao carregar regiões',
+          text: 'Não foi possível carregar a lista de regiões. Tente novamente.',
+          confirmButtonColor: '#3b82f6'
+        });
+        console.error('Erro ao carregar regiões:', error);
       }
     });
   }
 
-  alternarStatus(regiao: Regiao) {
+  novaRegiao() {
+    this.router.navigate(['/regiao/nova']);
+  }
+
+  editarRegiao(id: number) {
+    this.router.navigate(['/regiao/editar', id]);
+  }
+
+  async alternarStatus(regiao: Regiao) {
     const novoStatus = { id: regiao.id, ativo: !regiao.ativo };
-    this.regioesService.alterarStatus(regiao.id, novoStatus).subscribe({
-      next: () => {
-        regiao.ativo = novoStatus.ativo;
-      },
-      error: () => alert('Erro ao alterar status')
+    const acao = novoStatus.ativo ? 'ativar' : 'desativar';
+    console.log(`Tentando ${acao} região:`, regiao);
+
+    const result = await Swal.fire({
+      title: `Deseja realmente ${acao} esta região?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: novoStatus.ativo ? '#f59e0b' : '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: `Sim, ${acao}`,
+      cancelButtonText: 'Cancelar'
     });
+
+    if (result.isConfirmed) {
+      this.regiaoService.alterarStatus(regiao.id, novoStatus).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: `Região ${acao === 'desativar' ? 'desativada' : 'ativada'} com sucesso!`,
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.carregarRegioes();
+        },
+        error: (error) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro',
+            text: `Erro ao ${acao} região. Tente novamente.`,
+          });
+          console.error(`Erro ao ${acao} região:`, error);
+        }
+      });
+    }
   }
 }
