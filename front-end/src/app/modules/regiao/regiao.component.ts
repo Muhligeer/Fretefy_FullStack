@@ -14,6 +14,7 @@ export class RegiaoComponent implements OnInit {
 
   regioes: Observable<Regiao[]>;
   loading = true;
+  exportando = false;
 
   constructor(
     private regiaoService: RegiaoService,
@@ -90,5 +91,32 @@ export class RegiaoComponent implements OnInit {
         }
       });
     }
+  }
+
+  exportarExcel() {
+    this.exportando = true;
+    this.regiaoService.exportarExcel().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'regioes.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.exportando = false;
+      },
+      error: (error) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao exportar',
+          text: 'Não foi possível exportar as regiões. Tente novamente.',
+          confirmButtonColor: '#3b82f6'
+        });
+        console.error('Erro ao exportar regiões:', error);
+        this.exportando = false;
+      }
+    });
   }
 }

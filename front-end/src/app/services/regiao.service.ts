@@ -34,5 +34,11 @@ export class RegiaoService {
   buscarRegiaoPorId(id: string) {
     return this.httpClient.get<Regiao>(`${environment.apiUrl}/Regiao/${id}`);
   }
+
+  exportarExcel() {
+    return this.httpClient.get(`${environment.apiUrl}/Regiao/exportar`, {
+      responseType: 'blob'
+    });
+  }
   
 }

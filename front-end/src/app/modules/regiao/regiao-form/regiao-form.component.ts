@@ -5,6 +5,8 @@ import { AtualizarRegiaoRequest } from 'src/app/interfaces/AtualizarRegiaoReques
 import { CidadeService } from 'src/app/services/cidade.service';
 import { RegiaoService } from 'src/app/services/regiao.service';
 
+import Swal from 'sweetalert2'
+
 @Component({
   selector: 'app-regiao-form',
   templateUrl: './regiao-form.component.html',
@@ -73,12 +75,23 @@ export class RegiaoFormComponent implements OnInit {
 
   onSubmit() {
     if (this.regiaoForm.invalid) {
-      alert('Preencha todos os campos corretamente')
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Preencha todos os campos corretamente.',
+        confirmButtonColor: '#3b82f6'
+      });
+
       return;
     }
 
     if (this.regiaoForm.value.cidades.length < 1) {
-      alert('Selecione pelo menos uma cidade')
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Selecione pelo menos uma cidade.',
+        confirmButtonColor: '#3b82f6'
+      });
       return;
     }
     const cidadesSelecionadas = this.regiaoForm.value.cidades;
@@ -87,7 +100,12 @@ export class RegiaoFormComponent implements OnInit {
     const temDuplicado = new Set(idsCidades).size !== idsCidades.length;
 
     if (temDuplicado) {
-      alert('Não é possível cadastrar cidades duplicadas');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Não é possível cadastrar cidades duplicadas.',
+        confirmButtonColor: '#3b82f6'
+      });
       return;
     }
 
@@ -105,13 +123,23 @@ export class RegiaoFormComponent implements OnInit {
         cidades: cidadesIds
       }
       this.regiaoService.atualizarRegiao(modelAtualizar).subscribe(data => {
-        alert('Atualizado com sucesso!')
+        Swal.fire({
+          icon: 'success',
+          title: 'Sucesso',
+          text: 'Atualizado com sucesso!',
+          confirmButtonColor: '#3b82f6'
+        });
         this.regiaoForm.reset();
         this.getCidades().clear();
         this.adicionarCidade();
         this.router.navigate(['/regiao'])
       }, error => {
-        alert('Ocorreu um erro')
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Ocorreu um erro',
+          confirmButtonColor: '#3b82f6'
+        });
       })
     } else {
       let model = {
@@ -119,13 +147,23 @@ export class RegiaoFormComponent implements OnInit {
         cidades: cidadesIds
       }
       this.regiaoService.criarRegiao(model).subscribe(data => {
-        alert('Salvo com sucesso!')
+        Swal.fire({
+          icon: 'success',
+          title: 'Sucesso',
+          text: 'Salvo com sucesso!',
+          confirmButtonColor: '#3b82f6'
+        });
         this.regiaoForm.reset();
         this.getCidades().clear();
         this.adicionarCidade();
         this.router.navigate(['/regiao'])
       }, error => {
-        alert('Ocorreu um erro')
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Ocorreu um erro',
+          confirmButtonColor: '#3b82f6'
+        });
       })
     }
   }
