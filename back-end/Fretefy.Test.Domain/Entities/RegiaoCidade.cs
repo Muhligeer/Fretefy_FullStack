@@ -11,5 +11,8 @@ namespace Fretefy.Test.Domain.Entities
 
         public Guid CidadeId { get; set; }
         public Cidade Cidade { get; set; }
+
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
     }
 }

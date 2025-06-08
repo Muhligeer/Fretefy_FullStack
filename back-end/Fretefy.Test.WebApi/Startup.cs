@@ -4,6 +4,7 @@ using Fretefy.Test.Domain.Interfaces.Services;
 using Fretefy.Test.Domain.Services;
 using Fretefy.Test.Infra.EntityFramework;
 using Fretefy.Test.Infra.EntityFramework.Repositories;
+using Fretefy.Test.Infra.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -46,6 +47,9 @@ namespace Fretefy.Test.WebApi
         {
             services.AddScoped<ICidadeRepository, CidadeRepository>();
             services.AddScoped<IRegiaoRepository, RegiaoRepository>();
+
+            services.AddHttpClient();
+            services.AddScoped<ILocalizacaoService, MapboxLocalizacaoService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

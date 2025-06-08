@@ -13,9 +13,17 @@ namespace Fretefy.Test.Domain.Services
     public class RegiaoService : IRegiaoService
     {
         private readonly IRegiaoRepository _regiaoRepository;
-        public RegiaoService(IRegiaoRepository regiaoRepository)
+        private readonly ICidadeRepository _cidadeRepository;
+        private readonly ILocalizacaoService _localizacaoService;
+
+        public RegiaoService(
+            IRegiaoRepository regiaoRepository, 
+            ICidadeRepository cidadeRepository, 
+            ILocalizacaoService localizacaoService)
         {
             _regiaoRepository = regiaoRepository;
+            _cidadeRepository = cidadeRepository;
+            _localizacaoService = localizacaoService;
         }
 
         public async Task<ListarRegiaoDto> CreateAsync(CriarRegiaoDto dto)
@@ -24,6 +32,19 @@ namespace Fretefy.Test.Domain.Services
                 throw new ArgumentException("Já existe uma região com esse nome.");
 
             var regiao = new Regiao(dto.Nome, dto.Cidades);
+
+            var cidadesCompletas = await _cidadeRepository.ObterPorIdsAsync(dto.Cidades);
+
+            foreach (var regiaoCidade in regiao.Cidades)
+            {
+                var cidade = cidadesCompletas.FirstOrDefault(c => c.Id == regiaoCidade.CidadeId);
+                if (cidade != null)
+                {
+                    var coordenadas = await _localizacaoService.ObterCoordenadasAsync(cidade.Nome, cidade.UF);
+                    regiaoCidade.Latitude = coordenadas.Latitude;
+                    regiaoCidade.Longitude = coordenadas.Longitude;
+                }
+            }
 
             var created = await _regiaoRepository.CreateAsync(regiao);
 

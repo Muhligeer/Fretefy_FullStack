@@ -21,7 +21,7 @@ namespace Fretefy.Test.Infra.EntityFramework.Mappings
             builder.HasOne(rc => rc.Cidade)
                    .WithMany()
                    .HasForeignKey(rc => rc.CidadeId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

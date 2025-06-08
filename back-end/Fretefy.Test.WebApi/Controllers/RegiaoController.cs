@@ -34,7 +34,9 @@ namespace Fretefy.Test.WebApi.Controllers
                 {
                     Id = c.Cidade.Id,
                     Nome = c.Cidade.Nome,
-                    UF = c.Cidade.UF
+                    UF = c.Cidade.UF,
+                    Latitude = c.Latitude,
+                    Longitude = c.Longitude
                 }).ToList()
             });
 
